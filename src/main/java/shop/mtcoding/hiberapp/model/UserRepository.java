@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,20 +14,26 @@ import lombok.RequiredArgsConstructor;
 public class UserRepository {
     private final EntityManager em;
 
+    // @Transactional
     // public void save(User user){
     //     em.persist(user);
     // }
     // 저장후 리턴이 필요할 경우 이렇게 사용하면 된다. 물론 DTO를 만들어서 리턴하면 더 좋다.
+    @Transactional
     public User save(User user){
         em.persist(user);
         return user;
     }
+    // @Transactional
     // public void update(User user){
     //     em.merge(user);
     // }
+    @Transactional
     public User update(User user){ // jpa 의  update 는 pk를 주지 않으면 insert를 해버린다. !!!!! 주의 
         return em.merge(user);
     }
+    
+    @Transactional
     public void delete(User user){
         em.remove(user);
     }

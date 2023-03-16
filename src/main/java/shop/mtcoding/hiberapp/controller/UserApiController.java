@@ -1,7 +1,7 @@
 package shop.mtcoding.hiberapp.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import shop.mtcoding.hiberapp.model.User;
-import shop.mtcoding.hiberapp.model.UserRepository;
+import shop.mtcoding.hiberapp.model.UserJpaRepository;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class UserApiController {
 
-    private final UserRepository userRepository;
+    // private final UserRepository userRepository;
+    private final UserJpaRepository userRepository;
 
     @PostMapping("/users")
     public ResponseEntity<?> addUser(User user){
@@ -36,12 +37,13 @@ public class UserApiController {
         if(ObjectUtils.isEmpty(id)){
             // id가 들어왔는지 
         }
-        User userPS = userRepository.findById(id);
+        User userPS = userRepository.findById(id).get(); // 값이 있다고 명시하는
         if(ObjectUtils.isEmpty(userPS)){
             return new ResponseEntity<>("해당 유저가 없습니다.", HttpStatus.BAD_REQUEST);
         }
         userPS.update(user.getPassword(), user.getEmail());
-        User updateUserPS = userRepository.update(userPS);
+        // User updateUserPS = userRepository.update(userPS);
+        User updateUserPS = userRepository.save(userPS); // jpaRepository사용할 때는 동적으로 persist / merge 선택
         return new ResponseEntity<>(updateUserPS, HttpStatus.OK);
     }
 
@@ -50,7 +52,7 @@ public class UserApiController {
         if(ObjectUtils.isEmpty(id)){
             // id가 들어왔는지 
         }
-        User userPS = userRepository.findById(id);
+        User userPS = userRepository.findById(id).get();
         if(ObjectUtils.isEmpty(userPS)){
             return new ResponseEntity<>("해당 유저가 없습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -60,7 +62,9 @@ public class UserApiController {
 
     @GetMapping("/users")
     public ResponseEntity<?> findUsers(@RequestParam(defaultValue = "0") int page){
-        List<User> userList = userRepository.findAll(page, 2);
+        
+        // List<User> userList = userRepository.findAll(page, 2);
+        Page<User> userList = userRepository.findAll(PageRequest.of(page, 2));
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 
@@ -69,7 +73,7 @@ public class UserApiController {
         if(ObjectUtils.isEmpty(id)){
             // id가 들어왔는지 
         }
-        User userPS = userRepository.findById(id);
+        User userPS = userRepository.findById(id).get();
         if(ObjectUtils.isEmpty(userPS)){
             return new ResponseEntity<>("해당 유저가 없습니다.", HttpStatus.BAD_REQUEST);
         }
